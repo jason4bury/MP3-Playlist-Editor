@@ -1,0 +1,16 @@
+# Real settings and secrets (use .env.example as the template)
+.env
+.env.*
+!.env.example
+config.local.json
+
+# Dependencies and local data
+node_modules/
+data/
+
+# Builds, logs and OS clutter
+*.exe
+*.log
+npm-debug.log*
+Thumbs.db
+.DS_Store

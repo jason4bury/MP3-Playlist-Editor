@@ -1,0 +1,29 @@
+# MP3 Playlist Editor. Every ${VALUE} below comes from your .env file (copy .env.example to
+# .env), so .env is normally the only file you edit.
+#
+#   docker compose up -d            pulls jason4bury/mp3-playlist-editor from Docker Hub and starts it
+#   docker compose up -d --build    builds the image from this folder instead
+services:
+  mp3-playlist-editor:
+    image: jason4bury/mp3-playlist-editor:${MP3_PLAYLIST_EDITOR_TAG:-latest}
+    build: .
+    container_name: mp3-playlist-editor
+    environment:
+      PORT: 3000
+      DATA_DIR: /app/data
+      # The app won't start until APP_PASSWORD is set to your own password in .env.
+      APP_PASSWORD: ${APP_PASSWORD:-}
+      # true runs it with no login screen at all (only on a network you fully trust).
+      DISABLE_LOGIN: ${DISABLE_LOGIN:-false}
+      # true when it sits behind a reverse proxy, so the sign-in lockout sees real addresses.
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+    volumes:
+      # Playlists, attached MP3s, cover art and sessions. A named Docker volume by default; set
+      # DATA_HOST_DIR in .env to keep them in a folder on the host instead.
+      - ${DATA_HOST_DIR:-mp3-playlist-editor-data}:/app/data
+    ports:
+      - "${PORT:-3002}:3000"
+    restart: unless-stopped
+
+volumes:
+  mp3-playlist-editor-data:

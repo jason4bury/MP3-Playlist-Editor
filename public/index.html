@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MP3 Playlist Editor</title>
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="deck">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-icon" src="/icon.png" alt="" />
+        <div>
+          <h1>MP3 Playlist Editor</h1>
+          <p class="brand-sub">a plain-text playlist editor</p>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" title="Toggle light/dark" aria-label="Toggle light/dark theme">◐</button>
+      </div>
+
+      <div class="new-playlist">
+        <input id="new-playlist-name" type="text" placeholder="New playlist name" />
+        <input id="new-playlist-folder" type="text" placeholder="Folder (optional)" />
+        <textarea id="new-playlist-tracks" class="new-playlist-tracks" rows="3" placeholder="Paste tracks (optional) — one per line. No MP3s needed, those can be attached anytime later."></textarea>
+        <button id="create-playlist-btn" class="btn btn-ghost">+ Create</button>
+      </div>
+
+      <div class="global-search">
+        <input id="global-search-input" type="text" placeholder="Search all playlists… (press /)" />
+        <div id="global-search-results" class="global-search-results hidden"></div>
+      </div>
+
+      <nav id="playlist-list" class="playlist-list" aria-label="Your playlists"></nav>
+
+      <p class="empty-hint" id="sidebar-empty-hint">No playlists yet — create one above.</p>
+
+      <div class="sidebar-footer">
+        <button id="recently-deleted-btn" class="btn btn-ghost sidebar-footer-btn">🗑 Recently deleted</button>
+        <button id="backup-btn" class="btn btn-ghost sidebar-footer-btn">⬇ Backup all</button>
+        <label class="btn btn-ghost sidebar-footer-btn">
+          ⬆ Restore backup
+          <input id="restore-input" type="file" accept=".json" hidden />
+        </label>
+        <button id="about-btn" class="btn btn-ghost sidebar-footer-btn">ⓘ About</button>
+        <button id="logout-btn" class="btn btn-ghost sidebar-footer-btn logout-btn hidden">🚪 Sign out</button>
+      </div>
+    </aside>
+
+    <div id="deleted-panel" class="modal-overlay hidden">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Recently deleted</h2>
+          <button id="deleted-panel-close" class="player-close">✕</button>
+        </div>
+        <p class="modal-sub">Permanently removed after 7 days.</p>
+        <div id="deleted-list" class="deleted-list"></div>
+        <p id="deleted-empty-hint" class="empty-hint hidden">Nothing here right now.</p>
+      </div>
+    </div>
+
+    <div id="restore-panel" class="modal-overlay hidden">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Restore backup</h2>
+          <button id="restore-panel-close" class="player-close" title="Cancel" aria-label="Cancel">✕</button>
+        </div>
+        <p class="modal-sub" id="restore-summary"></p>
+        <div class="restore-choices">
+          <button id="restore-merge-btn" class="btn btn-primary">Merge</button>
+          <p class="restore-choice-note">Adds playlists from the backup whose names aren't already here. Nothing is removed.</p>
+          <button id="restore-replace-btn" class="btn btn-danger-ghost">Replace all</button>
+          <p class="restore-choice-note">Replaces your playlists with the ones in the backup. The current ones move to Recently deleted for 7 days.</p>
+          <button id="restore-cancel-btn" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="about-panel" class="modal-overlay hidden">
+      <div class="modal about-modal">
+        <div class="modal-header">
+          <h2>About</h2>
+          <button id="about-panel-close" class="player-close" title="Close" aria-label="Close">✕</button>
+        </div>
+        <div class="about-body">
+          <img src="/icon.png" alt="" class="about-icon" />
+          <div>
+            <p class="about-name">MP3 Playlist Editor <span id="about-version"></span></p>
+            <p>Paste a tracklist, attach your MP3s and export them as a numbered, tagged folder.</p>
+            <p>Copyright © 2026 Jason Rhodes. Released under the MIT licence.</p>
+            <p><a id="about-repo" href="https://github.com/jason4bury/MP3-Playlist-Editor" target="_blank" rel="noopener">github.com/jason4bury/MP3-Playlist-Editor</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="main">
+      <div id="no-playlist-state" class="no-playlist-state">
+        <span class="big-mark">♪</span>
+        <h2>Pick or create a playlist</h2>
+        <p>Everything lives on the left. Import a pasted list to get started fast.</p>
+      </div>
+
+      <div id="playlist-view" class="playlist-view hidden">
+
+        <header class="playlist-header">
+          <div class="cover-art">
+            <div id="cover-thumb" class="cover-thumb hidden">
+              <img id="cover-img" alt="Cover art" />
+              <button id="cover-remove-btn" class="cover-remove" title="Remove cover">✕</button>
+            </div>
+            <label id="cover-upload-label" class="cover-upload-label" title="Upload cover art (JPEG or PNG)">
+              + cover
+              <input id="cover-input" type="file" accept="image/jpeg,image/png" hidden />
+            </label>
+          </div>
+          <div class="title-row">
+            <span class="side-label" id="side-label">SIDE A</span>
+            <h2 id="playlist-title" class="playlist-title" contenteditable="true" spellcheck="false"></h2>
+            <div class="folder-row">
+              <span>Folder:</span>
+              <span id="playlist-folder" class="playlist-folder" contenteditable="true" spellcheck="false" data-placeholder="none"></span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <span class="track-count" id="track-count">0 tracks</span>
+            <span class="total-duration" id="total-duration"></span>
+            <div class="undo-redo">
+              <button id="undo-btn" class="btn btn-ghost icon-btn" title="Undo (Ctrl+Z)" disabled>↺</button>
+              <button id="redo-btn" class="btn btn-ghost icon-btn" title="Redo (Ctrl+Shift+Z)" disabled>↻</button>
+            </div>
+            <div class="menu-wrap">
+              <button id="export-btn" class="btn btn-ghost">Export ▾</button>
+              <div id="export-menu" class="menu hidden">
+                <button data-format="txt">as .txt</button>
+                <button data-format="m3u">as .m3u</button>
+                <button data-format="json">as .json</button>
+                <button data-format="cue">as .cue</button>
+              </div>
+            </div>
+            <button id="export-audio-btn" class="btn btn-ghost">Export audio (.zip)</button>
+            <button id="duplicate-playlist-btn" class="btn btn-ghost">Save as copy</button>
+            <button id="delete-playlist-btn" class="btn btn-danger-ghost">Delete playlist</button>
+          </div>
+        </header>
+
+        <section class="import-panel">
+          <label for="import-text">Paste a list — one track per line</label>
+          <textarea id="import-text" rows="5" placeholder="Artist - Title&#10;Another Artist - Another Title&#10;Just A Title Works Too"></textarea>
+          <div class="import-actions">
+            <button id="import-replace-btn" class="btn btn-primary">Import (replace all)</button>
+            <button id="import-append-btn" class="btn btn-ghost">Import (append)</button>
+            <label class="btn btn-ghost">
+              Import file…
+              <input id="import-file-input" type="file" accept=".txt,.m3u,.m3u8,.cue" hidden />
+            </label>
+            <span class="import-hint">Handles "Artist - Title", "Title (Artist)", numbered lists, or plain titles. Files: .txt, .m3u, .cue.</span>
+          </div>
+        </section>
+
+        <section class="audio-panel">
+          <div id="audio-dropzone" class="audio-dropzone">
+            <span class="dz-icon">♫</span>
+            <div>
+              <p class="dz-title">Drop your MP3 files here to auto-match by name</p>
+              <p class="dz-sub">Matches filenames like "Artist - Title.mp3" against your tracklist. Anything that doesn't match lands below for manual assignment.</p>
+            </div>
+            <label class="btn btn-ghost dz-browse">
+              Browse files
+              <input id="audio-bulk-input" type="file" accept="audio/mpeg,.mp3" multiple hidden />
+            </label>
+          </div>
+          <div id="pool-files" class="pool-files hidden">
+            <p class="pool-title">Unassigned audio files — pick a track for each</p>
+            <div id="pool-list" class="pool-list"></div>
+          </div>
+        </section>
+
+        <section class="tracks-section">
+          <div class="tracks-toolbar">
+            <input id="filter-input" type="text" placeholder="Filter tracks…" />
+            <label class="missing-audio-toggle">
+              <input id="missing-audio-checkbox" type="checkbox" />
+              Missing audio only
+            </label>
+            <select id="sort-select" class="sort-select">
+              <option value="manual">Sort: Manual order</option>
+              <option value="title">Sort: Title (A–Z)</option>
+              <option value="artist">Sort: Artist (A–Z)</option>
+              <option value="duration">Sort: Duration</option>
+              <option value="added">Sort: Date added</option>
+            </select>
+            <button id="shuffle-btn" class="btn btn-ghost">🔀 Shuffle</button>
+            <button id="find-replace-toggle-btn" class="btn btn-ghost">Find &amp; replace</button>
+            <button id="add-track-btn" class="btn btn-ghost">+ Add track</button>
+          </div>
+
+          <div id="find-replace-panel" class="find-replace-panel hidden">
+            <input id="find-input" type="text" placeholder="Find…" />
+            <input id="replace-input" type="text" placeholder="Replace with…" />
+            <select id="find-replace-scope">
+              <option value="both">In: Title + Artist</option>
+              <option value="title">In: Title only</option>
+              <option value="artist">In: Artist only</option>
+            </select>
+            <button id="find-replace-apply-btn" class="btn btn-primary">Replace all</button>
+          </div>
+
+          <ol id="track-list" class="track-list"></ol>
+          <p id="tracks-empty-hint" class="empty-hint hidden">No tracks yet. Paste a list above, or add one manually.</p>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <div id="player-bar" class="player-bar hidden">
+    <div class="player-info">
+      <span class="player-icon">▶</span>
+      <div class="player-text">
+        <span id="player-title" class="player-title"></span>
+        <span id="player-artist" class="player-artist"></span>
+      </div>
+    </div>
+    <button id="player-prev" class="player-nav" title="Previous track" disabled>⏮</button>
+    <canvas id="player-waveform" class="player-waveform" width="480" height="40"></canvas>
+    <audio id="player-audio" controls></audio>
+    <button id="player-next" class="player-nav" title="Next track" disabled>⏭</button>
+    <button id="player-close" class="player-close" title="Close player">✕</button>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

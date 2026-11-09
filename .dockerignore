@@ -1,0 +1,12 @@
+# Keep secrets, local data and git history out of the Docker build context and image
+.env
+.env.*
+!.env.example
+.git
+node_modules
+data
+docs
+assets
+*.md
+*.log
+eslint.config.js

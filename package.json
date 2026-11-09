@@ -1,0 +1,37 @@
+{
+  "name": "mp3-playlist-editor",
+  "displayName": "MP3 Playlist Editor",
+  "version": "1.0.0",
+  "description": "Node.js/web tool for turning a pasted tracklist into a numbered, tagged MP3 playlist, self-hosted in Docker",
+  "copyright": "Copyright (c) 2026 Jason Rhodes",
+  "author": "Jason Rhodes",
+  "license": "MIT",
+  "homepage": "https://github.com/jason4bury/MP3-Playlist-Editor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jason4bury/MP3-Playlist-Editor.git"
+  },
+  "private": true,
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "archiver": "^8.0.0",
+    "express": "^4.22.3",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0"
+  },
+  "overrides": {
+    "minimatch": "^11.0.5"
+  }
+}
