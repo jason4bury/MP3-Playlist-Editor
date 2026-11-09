@@ -27,6 +27,10 @@ Paste a list of songs and get an editable playlist. Drop your own MP3s on it and
 - **Sign-in**: one shared password, sessions that survive a restart, and a lockout after 10 wrong passwords in 15 minutes.
 - **Light and dark themes**, and a health check at `GET /healthz` for Docker, Portainer and uptime monitors.
 
+## 🖼️ Screenshots
+
+![A playlist with cover art, attached MP3s and two tracks still waiting for audio](docs/screenshots/playlist.png)
+
 ## 📋 Requirements
 
 - Docker with Docker Compose v2 (Docker Desktop on Windows, or Docker Engine on Linux or a NAS)
