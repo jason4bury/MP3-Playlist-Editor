@@ -8,6 +8,25 @@ restarted at v1.00; earlier changes (as "Tracklist" 0.0.1 to 0.5.1) are in
 
 ## [Unreleased]
 
+## [1.01] - 2026-11-16
+
+### Changed
+- `docker-compose.yml` now fits a shared Docker setup: the app's settings come from its own
+  `.env` through `env_file` (`${ENV}/mp3-playlist-editor/.env`), and the data folder comes
+  from `CONFIGS` in the main `.env` next to the compose file. It runs the published image; it
+  no longer builds from source (use `docker build -t jason4bury/mp3-playlist-editor .` for
+  that). Adds a `home.group=Music` label.
+- The host port is fixed at 3002 and `PORT` and `DATA_DIR` inside the container are fixed in the
+  compose file.
+
+- `.env.example` now holds only the settings the app reads: `APP_PASSWORD`, `DISABLE_LOGIN`
+  and `TRUST_PROXY`.
+
+### Removed
+- The `mp3-playlist-editor-data` named volume.
+- `PORT`, `MP3_PLAYLIST_EDITOR_TAG` and `DATA_HOST_DIR` from `.env.example`: the port is fixed
+  in the compose file and the data folder comes from the main `.env`.
+
 ## [1.00] - 2026-11-07
 
 First release in the house style. Includes everything in the earlier history, plus:
