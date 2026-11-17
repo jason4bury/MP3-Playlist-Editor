@@ -8,6 +8,16 @@ restarted at v1.00; earlier changes (as "Tracklist" 0.0.1 to 0.5.1) are in
 
 ## [Unreleased]
 
+## [1.03] - 2026-11-17
+
+### Changed
+- The host port (`"3002:3000"`) and data volume are set directly in `docker-compose.yml`, so
+  nothing is set twice. `.env` holds only the app settings. The compose file runs
+  `jason4bury/mp3-playlist-editor:latest`.
+
+### Removed
+- `PORT`, `MP3_PLAYLIST_EDITOR_TAG` and `DATA_HOST_DIR` from `.env.example`.
+
 ## [1.02] - 2026-11-17
 
 ### Changed

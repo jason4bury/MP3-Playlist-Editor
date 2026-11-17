@@ -1,11 +1,11 @@
-# MP3 Playlist Editor v1.02. Build with: docker build -t jason4bury/mp3-playlist-editor:1.02 .
+# MP3 Playlist Editor v1.03. Build with: docker build -t jason4bury/mp3-playlist-editor:1.03 .
 # Node.js is pinned to an exact version so every build is the same; bump it here on purpose.
 ARG NODE_IMAGE=node:22.23.4-alpine
 FROM ${NODE_IMAGE}
 
 LABEL org.opencontainers.image.title="MP3 Playlist Editor" \
       org.opencontainers.image.description="Turn a pasted tracklist into a numbered, tagged MP3 playlist, self-hosted in Docker" \
-      org.opencontainers.image.version="1.02" \
+      org.opencontainers.image.version="1.03" \
       org.opencontainers.image.source="https://github.com/jason4bury/MP3-Playlist-Editor" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.authors="Jason Rhodes"

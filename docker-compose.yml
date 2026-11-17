@@ -1,12 +1,12 @@
-# MP3 Playlist Editor. Copy .env.example to .env next to this file, fill it in, then run:
-#   docker compose up -d
-# Every ${VALUE} below comes from that .env, so .env is normally the only file you edit.
+# MP3 Playlist Editor
+# 1. Copy .env.example to .env next to this file and set APP_PASSWORD.
+# 2. Run: docker compose up -d   then open http://<your-server>:3002
 services:
 
   mp3-playlist-editor:
-    image: jason4bury/mp3-playlist-editor:${MP3_PLAYLIST_EDITOR_TAG:-latest}
+    image: jason4bury/mp3-playlist-editor:latest
     container_name: mp3-playlist-editor
-    # Passes the app settings in .env (APP_PASSWORD, DISABLE_LOGIN, TRUST_PROXY) to the container.
+    # App settings (APP_PASSWORD, DISABLE_LOGIN, TRUST_PROXY) come from .env.
     env_file:
       - .env
     # Fixed container-side values. These override anything with the same name in .env.
@@ -14,11 +14,13 @@ services:
       PORT: 3000
       DATA_DIR: /app/data
     volumes:
-      # Playlists, attached MP3s, cover art and sessions. A named Docker volume unless
-      # DATA_HOST_DIR is set.
-      - ${DATA_HOST_DIR:-mp3-playlist-editor-data}:/app/data
+      # Playlists, attached MP3s, cover art and sessions, in a Docker volume. To keep them in a
+      # folder instead, replace mp3-playlist-editor-data with a path such as
+      # D:/Docker/mp3-playlist-editor.
+      - mp3-playlist-editor-data:/app/data
     ports:
-      - "${PORT:-3002}:3000"
+      # Change the first number to use a different port on the host.
+      - "3002:3000"
     restart: unless-stopped
 
 volumes:
