@@ -6,7 +6,7 @@
 
 A self-hosted web app that turns a pasted tracklist into a numbered, tagged MP3 playlist, run in Docker.
 
-![Version](https://img.shields.io/badge/version-v1.01-blue)
+![Version](https://img.shields.io/badge/version-v1.02-blue)
 ![Platform](https://img.shields.io/badge/platform-Docker-2496ED?logo=docker&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)
 ![Licence](https://img.shields.io/badge/licence-MIT-green)
@@ -39,27 +39,18 @@ Paste a list of songs and get an editable playlist. Drop your own MP3s on it and
 
 ## 📦 Installation
 
-The compose file is made for a shared Docker folder: one main `.env` next to `docker-compose.yml` that names your folders, and a separate `.env` for each app. The main `.env` needs:
-
-```
-ENV=E:/Docker/env          # folder holding one subfolder per app, each with its .env
-CONFIGS=E:/Docker/configs  # folder holding one data subfolder per app
-```
-
-Compose reads `${...}` values only from that main `.env`, never from the app's own `.env`.
-
-1. Put `docker-compose.yml` from this repository in your Docker folder (or add its `mp3-playlist-editor` service to the compose file you already have), and set the two values above in the main `.env`.
-2. Copy `.env.example` to `<ENV>/mp3-playlist-editor/.env` and set `APP_PASSWORD` to your own password. See Configuration for the rest.
-3. Start it from the Docker folder:
+1. Put `docker-compose.yml` and `.env.example` from this repository in a folder on the Docker host (or clone the repository).
+2. Copy `.env.example` to `.env` in the same folder and set `APP_PASSWORD` to your own password. See Configuration for the rest.
+3. Start it from that folder:
 
    ```
-   docker compose up -d mp3-playlist-editor
+   docker compose up -d
    ```
 
    This pulls `jason4bury/mp3-playlist-editor` from Docker Hub. To build the image yourself, run `docker build -t jason4bury/mp3-playlist-editor .` in this repository first.
-4. Open `http://<your-server>:3002` and sign in.
+4. Open `http://<your-server>:3002` (or the `PORT` you set) and sign in.
 
-**Updating:** `docker compose pull` then `docker compose up -d`. Your playlists and MP3s stay in the data folder.
+**Updating:** `docker compose pull` then `docker compose up -d`. Your playlists and MP3s stay in the data volume or folder.
 
 ## 🚀 Usage
 
@@ -78,21 +69,22 @@ The **Sort** list only changes the view; switch back to "Manual order" to drag. 
 
 ## ⚙️ Configuration
 
-The app's settings live in `<ENV>/mp3-playlist-editor/.env`, which the compose file passes to the container with `env_file`. Keep it out of Git; `.env.example` shows every setting.
+All settings live in `.env` next to `docker-compose.yml`. `.env` is gitignored; `.env.example` shows every setting. Compose uses the port, tag and data folder settings, and passes the rest to the app.
 
 | Setting | Required | What it does |
 | --- | --- | --- |
 | `APP_PASSWORD` | Yes | The sign-in password. The app won't start while it's empty or `changeme` |
+| `PORT` | | Port on the host (default `3002`) |
+| `MP3_PLAYLIST_EDITOR_TAG` | | Image tag to run: `latest` (default) or a version such as `1.02` |
+| `DATA_HOST_DIR` | | Host folder for the data. Blank uses the `mp3-playlist-editor-data` Docker volume |
 | `DISABLE_LOGIN` | | `true` runs with no login screen. Only on a network you fully trust |
 | `TRUST_PROXY` | | `true` behind a reverse proxy, so the lockout sees real client addresses |
 
 If the app won't start, `docker compose logs mp3-playlist-editor` says which setting is missing.
 
-The host port (`3002`), and `PORT` and `DATA_DIR` inside the container, are fixed in `docker-compose.yml`. The data folder is set in the main `.env`, not here.
-
 ### Where data is stored
 
-Everything is in the container's `/app/data` folder, which is `<CONFIGS>/mp3-playlist-editor` on the host:
+Everything is in the container's `/app/data` folder, which is the `mp3-playlist-editor-data` Docker volume, or `DATA_HOST_DIR` if you set it:
 
 - `playlists.json`: every playlist, its tracks and folder, plus Recently deleted. `playlists.json.bak` is the version before the last save.
 - `audio/<playlist id>/`: the attached MP3s, cover art and unassigned files.

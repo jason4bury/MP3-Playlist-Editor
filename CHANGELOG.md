@@ -8,6 +8,18 @@ restarted at v1.00; earlier changes (as "Tracklist" 0.0.1 to 0.5.1) are in
 
 ## [Unreleased]
 
+## [1.02] - 2026-11-17
+
+### Changed
+- `docker-compose.yml` and `.env.example` work for anyone again, with no shared Docker folder
+  needed: one `.env` next to the compose file holds the port, image tag, data folder and app
+  settings.
+- Data goes in the `mp3-playlist-editor-data` Docker volume unless `DATA_HOST_DIR` is set.
+- The image tag (`MP3_PLAYLIST_EDITOR_TAG`) and host port (`PORT`) can be set in `.env` again.
+
+### Removed
+- The `ENV` and `CONFIGS` variables from a shared main `.env`, and the `home.group` label.
+
 ## [1.01] - 2026-11-16
 
 ### Changed
